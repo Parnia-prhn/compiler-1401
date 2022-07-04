@@ -1,0 +1,263 @@
+import java_cup.runtime.*;
+
+
+parser code  {: 
+  public void report_error(String message, Object info) {
+    StringBuilder m = new StringBuilder("Error ");
+
+    if (info instanceof java_cup.runtime.Symbol) 
+      m.append( "("+info.toString()+")" );
+     
+    m.append(" : "+message);
+   
+    System.out.println(m);
+  }
+   
+:};
+scan with
+{:
+return java.yylex();
+:};
+
+terminal BOOLEAN; 
+terminal INT, LONG, CHAR; 
+terminal STRING;
+terminal FLOAT, DOUBLE; 
+terminal VOID;
+terminal IF, ELSE;
+terminal ELSEIF;
+terminal SWITCH;
+terminal CASE, DEFAULT;
+terminal WHILE; 
+terminal FOR; 
+terminal BREAK; 
+terminal CONTINUE;
+terminal RETURN;
+terminal EQ;
+terminal COMMENT;
+terminal PLUS, MINUS, MULT,DIV, MOD;
+terminal AND;
+terminal OR; 
+terminal ASSIGN ;
+terminal NEQ;
+terminal LESS, LESSEQ ;
+terminal GREATER , GRTEQ;
+terminal PLUSPLUS;
+terminal MINUSMINUS; 
+terminal TRUE, FALSE;
+terminal PRIGHT, PLEFT;
+terminal BRIGHT , BLEFT;
+terminal SEMICOLON,COLON ,COMMA , DOT, CONSTANT ;
+terminal java.lang.Number INTEGER_LITERAL;
+terminal java.lang.Number FLOATING_POINT_LITERAL;
+terminal java.lang.Boolean BOOLEAN_LITERAL;
+terminal java.lang.Character CHARACTER_LITERAL;
+terminal java.lang.String STRING_LITERAL;
+terminal java.lang.String IDENTIFIER; 
+
+non terminal literal;
+non terminal type, primitive_type;
+non terminal name;
+non terminal method_declaration, method_header, method_declarator, method_body;
+non terminal parameter, parameters;
+non terminal block, block_statement;
+non terminal variable_declaration_statement,variable_declaration, variable_declarators, variable_declarator;
+non terminal statement;
+non terminal expression_statement, statement_expression;
+non terminal if_statement;
+non terminal if_else_statement;
+non terminal switch_statement, switch_block;
+non terminal switch_labels, switch;
+non terminal while_statement;
+non terminal for_statement;
+non terminal for_init;
+non terminal for_update;
+non terminal statement_expression_list;
+non terminal break_statement, continue_statement;
+non terminal return_statement;
+non terminal expression;
+non terminal assignment_expression, conditional_expression, infix_expression, prefix_expression ;
+non terminal infix_op, prefix_op;
+
+//start with method_declaration;
+
+literal ::=	
+		INTEGER_LITERAL
+	|	FLOATING_POINT_LITERAL
+	|	BOOLEAN_LITERAL
+	|	CHARACTER_LITERAL
+	|	STRING_LITERAL
+	;
+
+type	::=	primitive_type
+	;
+primitive_type ::=
+		INT 
+	|	LONG
+	|	CHAR 
+	|	FLOAT 
+	|	DOUBLE
+	|	BOOLEAN
+	|	STRING
+	;
+name	::=	IDENTIFIER
+	;
+method_declaration ::=
+		method_header method_body
+	;
+method_header ::=
+		type method_declarator
+	|	VOID method_declarator
+	;
+method_declarator ::=
+		IDENTIFIER PLEFT parameters PRIGHT
+	;
+
+parameters ::=
+		parameter
+	|	parameters COMMA parameter
+	;
+parameter ::=
+		type IDENTIFIER
+	;
+
+method_body ::=	
+		block
+	|	SEMICOLON
+	;
+	///////////////////////////////////
+
+
+block ::=	
+		BLEFT block_statement BRIGHT
+	;
+
+block_statement ::=
+		variable_declaration_statement
+	|	statement
+	;
+variable_declaration_statement ::=
+		variable_declaration SEMICOLON
+		;
+variable_declaration	::=	
+		type variable_declarators
+	;
+variable_declarators ::=
+		variable_declarator
+	|	variable_declarators COMMA variable_declarator
+	;
+variable_declarator ::=
+		IDENTIFIER
+	|	IDENTIFIER EQ expression
+	;
+////
+
+statement ::=	
+		block
+	|	expression_statement
+	|	switch_statement
+	|	break_statement
+	|	continue_statement
+	|	return_statement
+	|	if_statement
+	|	if_else_statement
+	|	while_statement
+	|	for_statement
+	;
+
+expression_statement ::=
+		statement_expression SEMICOLON
+	;
+statement_expression ::=
+		expression
+	;
+if_statement ::=
+		IF PLEFT expression PRIGHT statement
+	;
+if_else_statement ::=
+		IF PLEFT expression PRIGHT statement 
+			ELSE statement
+	;
+
+switch_statement ::=
+		SWITCH PLEFT expression PRIGHT switch_block
+	;
+switch_block ::=
+		BLEFT switch_labels BRIGHT
+	|	BLEFT BRIGHT
+	;
+	
+switch_labels ::=
+		switch
+	|	switch_labels switch
+	;
+switch ::=
+		CASE expression COLON BLEFT statement BRIGHT
+	|	DEFAULT COLON BLEFT statement BRIGHT
+	;
+while_statement ::=
+		WHILE PLEFT expression PRIGHT statement
+	;
+
+for_statement ::=
+		FOR PLEFT for_init SEMICOLON expression SEMICOLON
+			for_update PRIGHT statement 
+	;
+for_init ::=	
+		statement_expression_list
+	|	variable_declaration
+	;
+for_update ::=	
+		statement_expression_list
+		;
+statement_expression_list ::=
+		statement_expression
+	|	statement_expression_list COMMA statement_expression
+	;
+break_statement ::=
+		BREAK SEMICOLON
+	;
+continue_statement ::=
+		CONTINUE SEMICOLON
+	;
+return_statement ::=
+		RETURN expression SEMICOLON
+	;
+expression ::=	
+		assignment_expression
+	|	conditional_expression
+
+	;
+assignment_expression ::=
+		conditional_expression ASSIGN expression
+	;
+conditional_expression ::=
+		infix_expression
+	;
+infix_expression ::=
+		prefix_expression
+	|	infix_expression infix_op prefix_expression
+	;	
+infix_op ::= 
+		OR
+	|	AND
+	|	ASSIGN
+	|	NEQ
+	|	LESS
+	|	GREATER
+	|	LESSEQ
+	|	GRTEQ
+	|	PLUS
+	|	MINUS
+	|	MULT
+	|	DIV
+	|	MOD
+	;
+prefix_expression ::=
+		prefix_op prefix_expression
+	;
+prefix_op ::=
+		MINUSMINUS
+	|	PLUSPLUS
+	;
+
